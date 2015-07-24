@@ -1,4 +1,4 @@
-This project is hosted at: http://chunshengit.github.io/NeighborhoodMap/.
+This project is hosted at: http://chunshengit.github.io/frontend-nanodegree-neighborhood-map
 
 
 Copy and paste this URL in to the browser to open the web page. 
