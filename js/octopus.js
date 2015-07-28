@@ -1,8 +1,3 @@
-/* Heads up for user if internet connection is lost */
-window.addEventListener('load', function(){
-    new Heyoffline();
-    }, false);
-
 var mapOptions = {
     zoom: 16,
     center: new google.maps.LatLng(37.806389, -122.423611)
