@@ -1,7 +1,12 @@
+/* Heads up for user if internet connection is lost */
+window.addEventListener('load', function(){
+    new Heyoffline();
+    }, false);
+
 var mapOptions = {
-        zoom: 16,
-        center: new google.maps.LatLng(37.806389, -122.423611)
-};
+    zoom: 16,
+    center: new google.maps.LatLng(37.806389, -122.423611)
+}   ;
 
 window.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
@@ -51,14 +56,34 @@ var pointsOfInterest = [
     }
 ];
 
+/* Create InfoBox Singleton for clicking funciton */
+var infoBox = new InfoBox({
+    content: "",
+    disableAutoPan: false,
+    maxWidth: 150,
+    pixelOffset: new google.maps.Size(-140, 0),
+    zIndex: null,
+    boxStyle: {
+    background: "url('images/tipbox.gif') no-repeat",
+    opacity: 1,
+    width: "300px"
+    },
+    closeBoxMargin: "12px 4px 2px 2px",
+    closeBoxURL: "images/close.gif",
+    infoBoxClearance: new google.maps.Size(1, 1)
+});
+
 /* Data model holding all the info for specific attraction */
-var Pin = function Pin(map, name, lat, lng) {
+var Pin = function Pin(map, name, lat, lng, infobox) {
     var self = this;
 
     self.name = ko.observable(name);
-    self.lat  = ko.observable(lat);
-    self.lng  = ko.observable(lng);
-    self.wikipediaContent =ko.observable("");
+    self.lat = ko.observable(lat);
+    self.lng = ko.observable(lng);
+    self.url =  "";
+    self.wikipediaContent =ko.observable('<div id="infobox">' +
+                                        "Loading Wikipedia...Working hard!" +
+                                        '</div>');
 
     self.marker = new google.maps.Marker({
                         position: new google.maps.LatLng(lat, lng),
@@ -66,30 +91,16 @@ var Pin = function Pin(map, name, lat, lng) {
                         map:map
     });
 
-    self.infoBox = new InfoBox({
-         content: self.wikipediaContent(),
-         disableAutoPan: false,
-         maxWidth: 150,
-         pixelOffset: new google.maps.Size(-140, 0),
-         zIndex: null,
-         boxStyle: {
-            background: "url('images/tipbox.gif') no-repeat",
-            opacity: 1,
-            width: "300px"
-        },
-        closeBoxMargin: "12px 4px 2px 2px",
-        closeBoxURL: "images/close.gif",
-        infoBoxClearance: new google.maps.Size(1, 1)
-    });
-
     self.clickOnListItem = function () {
-        self.infoBox.setContent(self.wikipediaContent());
-        self.infoBox.open(map, self.marker);
+        infoBox.close();
+        infoBox.setContent(self.wikipediaContent());
+        infoBox.open(map, self.marker);
     };
 
     google.maps.event.addListener(self.marker, 'click', function() {
-        self.infoBox.setContent(self.wikipediaContent());
-        self.infoBox.open(map, self.marker);
+        infoBox.close();
+        infoBox.setContent(self.wikipediaContent());
+        infoBox.open(map, self.marker);
         });
 };
 
@@ -102,7 +113,7 @@ var viewModel = function (attractions) {
     var bounds = new google.maps.LatLngBounds();
 
     attractions.forEach(function(point) {
-        self.pins.push(new Pin(window.map, point.name, point.lat, point.lng, point.url));
+        self.pins.push(new Pin(window.map, point.name, point.lat, point.lng));
         bounds.extend(new google.maps.LatLng(point.lat, point.lng));
     });
 
@@ -145,9 +156,15 @@ var viewModel = function (attractions) {
                                         response[2][0] +
                                         '</div>');
                     p.url = response[3][0];
-
-                clearTimeout(wikiRequestTimeout);
-            }
+                    clearTimeout(wikiRequestTimeout);
+                },
+                /* Error loading the content, set the error message per pin/marker */
+                error: function(jqXHR, textStatus, errorThrown ) {
+                    p.wikipediaContent('<div id="infobox">' +
+                                        "Error Loading Wikipedia, reload the page when network is available" +
+                                        '</div>');
+                    clearTimeout(wikiRequestTimeout);
+                }
             });
         });
     }());
