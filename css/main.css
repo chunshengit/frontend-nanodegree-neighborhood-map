@@ -1,18 +1,18 @@
 /* Enter your custom CSS here */
 body {
-	font-family: Verdana, sans-serif;
-	color: #666;
+    font-family: Verdana, sans-serif;
+    color: #666;
 }
 
 /* Correct the bootstrap default setting width to auto */
 @media (min-width: 1200px) {
-  .container{
+  .container {
     width: 98%;
   }
 }
 
 .container_layout {
-	margin-top: 10px;
+    margin-top: 10px;
     margin-left: 5px;
 }
 
