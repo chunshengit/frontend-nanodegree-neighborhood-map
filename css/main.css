@@ -6,9 +6,9 @@ body {
 
 /* Correct the bootstrap default setting width to auto */
 @media (min-width: 1200px) {
-  .container {
-    width: 98%;
-  }
+    .container {
+        width: 98%;
+    }
 }
 
 .container_layout {
