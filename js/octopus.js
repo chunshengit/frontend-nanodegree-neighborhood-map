@@ -1,7 +1,7 @@
 var mapOptions = {
     zoom: 16,
     center: new google.maps.LatLng(37.806389, -122.423611)
-}   ;
+};
 
 window.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
@@ -51,7 +51,7 @@ var pointsOfInterest = [
     }
 ];
 
-/* Create InfoBox Singleton for clicking funciton */
+/* Create InfoBox Singleton for one InfoBox displayed only */
 var infoBox = new InfoBox({
     content: "",
     disableAutoPan: false,
@@ -76,9 +76,9 @@ var Pin = function Pin(map, name, lat, lng, infobox) {
     self.lat = ko.observable(lat);
     self.lng = ko.observable(lng);
     self.url =  "";
-    self.wikipediaContent =ko.observable('<div id="infobox">' +
+    self.wikipediaContent =ko.observable('<div class="infobox">' +
                                         "Loading Wikipedia...Working hard!" +
-                                        '</div>');
+                                        '</class>');
 
     self.marker = new google.maps.Marker({
                         position: new google.maps.LatLng(lat, lng),
@@ -127,6 +127,7 @@ var viewModel = function (attractions) {
     });
 
     self.searchFun = function () {
+        infoBox.close(); // remove the infobox before search
         self.pins().forEach(function(p) {
             if (p.name().toLowerCase().indexOf(self.searchStr().toLowerCase()) >= 0) {
             p.marker.setVisible(true);
@@ -147,17 +148,17 @@ var viewModel = function (attractions) {
                 url: wikipediaUrl,
                 dataType: "jsonp",
                 success: function(response) {
-                    p.wikipediaContent('<div id="infobox">' +
+                    p.wikipediaContent('<div class="infobox">' +
                                         response[2][0] +
-                                        '</div>');
+                                        '</class>');
                     p.url = response[3][0];
                     clearTimeout(wikiRequestTimeout);
                 },
                 /* Error loading the content, set the error message per pin/marker */
                 error: function(jqXHR, textStatus, errorThrown ) {
-                    p.wikipediaContent('<div id="infobox">' +
+                    p.wikipediaContent('<div class="infobox">' +
                                         "Error Loading Wikipedia, reload the page when network is available" +
-                                        '</div>');
+                                        '</class>');
                     clearTimeout(wikiRequestTimeout);
                 }
             });
@@ -166,5 +167,3 @@ var viewModel = function (attractions) {
 };
 
 ko.applyBindings(new viewModel(pointsOfInterest));
-
-
